@@ -110,8 +110,7 @@ class _HomeState extends State<Home> {
                     ),
                   ),
                   hintText: "Enter device name",
-                  hintStyle: TextStyle(
-                      color: Colors.grey[700], fontSize: 18), // Hint text style
+                  hintStyle: TextStyle(color: Colors.grey[700], fontSize: 18),
                 ),
               ),
             )
