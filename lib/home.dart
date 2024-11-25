@@ -1,7 +1,6 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lensora/utils/customdropdown.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -11,6 +10,8 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  String? selectedValue = 'Bluetooth';
+  List<String> options = ["Bluetooth", "Wi-Fi"];
   final double hp = 30;
   final double vp = 10;
 
@@ -112,6 +113,44 @@ class _HomeState extends State<Home> {
                   hintText: "Enter device name",
                   hintStyle: TextStyle(color: Colors.grey[700], fontSize: 18),
                 ),
+              ),
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: hp),
+              child: CustomDropDown(
+                items: options,
+                title: Text("Connection Type",
+                    style: TextStyle(
+                        color: Colors.grey[700],
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500)),
+                selectedValue: selectedValue,
+                onSelect: (value) {
+                  setState(() {
+                    selectedValue = value;
+                  });
+                },
+              ),
+            ),
+            SizedBox(height: 40),
+            GestureDetector(
+              child: Center(
+                child: Container(
+                    height: 60,
+                    width: 200,
+                    child: Center(
+                      child: Text(
+                        "Submit",
+                        style: TextStyle(color: Colors.white, fontSize: 24),
+                      ),
+                    ),
+                    decoration: BoxDecoration(
+                        boxShadow: [BoxShadow(color: Colors.white)],
+                        color: Colors.black,
+                        borderRadius: BorderRadius.circular(15))),
               ),
             )
           ],

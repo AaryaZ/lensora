@@ -18,18 +18,18 @@ class MyScrollbar extends StatefulWidget {
 }
 
 class _MyScrollbarState extends State<MyScrollbar> {
+  late ScrollController _scrollController; // Made this non-nullable
   ScrollbarPainter? _scrollbarPainter;
-  ScrollController? _scrollController;
   Orientation? _orientation;
 
   @override
   void initState() {
     super.initState();
-    _scrollController = widget.scrollController;
+    // Initialize the scrollController with the provided one, or create a new one if it's null
+    _scrollController = widget.scrollController ?? ScrollController();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Update the scrollbar painter when the frame is built
-      if (_scrollController != null) {
-        _updateScrollPainter(_scrollController!.position);
+      if (_scrollController.hasClients) {
+        _updateScrollPainter(_scrollController.position);
       }
     });
   }
@@ -43,7 +43,8 @@ class _MyScrollbarState extends State<MyScrollbar> {
 
   @override
   void dispose() {
-    // Safely dispose the scrollbar painter if it was initialized
+    // Dispose the scrollController and the scrollbar painter when done
+    _scrollController.dispose();
     _scrollbarPainter?.dispose();
     super.dispose();
   }
@@ -54,26 +55,23 @@ class _MyScrollbarState extends State<MyScrollbar> {
       textDirection: Directionality.of(context),
       thickness: _kScrollbarThickness,
       radius: Radius.circular(20),
-      fadeoutOpacityAnimation: const AlwaysStoppedAnimation<double>(1.0),
+      fadeoutOpacityAnimation: AlwaysStoppedAnimation(1.0),
       padding: EdgeInsets.only(top: 15, right: 15, bottom: 5, left: 5),
     );
   }
 
   bool _updateScrollPainter(ScrollMetrics position) {
-    // Safely update the scrollbar painter if it's initialized
-    _scrollbarPainter?.update(
-      position,
-      position.axisDirection,
-    );
+    // Safely update the scrollbar painter with the current position
+    _scrollbarPainter?.update(position, position.axisDirection);
     return false;
   }
 
   @override
   void didUpdateWidget(MyScrollbar oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Safely update the scrollbar painter on widget update
-    if (_scrollController != null) {
-      _updateScrollPainter(_scrollController!.position);
+    // Ensure that the scrollbar painter is updated when the widget is updated
+    if (_scrollController.hasClients) {
+      _updateScrollPainter(_scrollController.position);
     }
   }
 
@@ -81,23 +79,23 @@ class _MyScrollbarState extends State<MyScrollbar> {
   Widget build(BuildContext context) {
     return OrientationBuilder(
       builder: (context, orientation) {
-        // Initialize _orientation on first build and update when it changes
+        // Update _orientation when it changes
         if (_orientation != orientation) {
           _orientation = orientation;
-          if (_scrollController != null) {
-            _updateScrollPainter(_scrollController!.position);
+          if (_scrollController.hasClients) {
+            _updateScrollPainter(_scrollController.position);
           }
         }
 
         return NotificationListener<ScrollNotification>(
           onNotification: (notification) {
-            // Safely update the scrollbar painter on scroll notification
+            // Update scrollbar painter when the scroll position changes
             _updateScrollPainter(notification.metrics);
             return false;
           },
           child: CustomPaint(
             painter: _scrollbarPainter,
-            child: widget.builder(context, _scrollController!),
+            child: widget.builder(context, _scrollController),
           ),
         );
       },
